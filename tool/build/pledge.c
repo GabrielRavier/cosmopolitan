@@ -423,8 +423,8 @@ void CheckLargeStackAllocation(void *p, ssize_t n) {
 
 static struct sock_filter kUnveilBlacklistAbiVersionBelow3[] = {
     BPF_STMT(BPF_LD | BPF_W | BPF_ABS, OFF(arch)),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, AUDIT_ARCH_X86_64, 1, 0),
-    BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_KILL_PROCESS),
+//    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, AUDIT_ARCH_X86_64, 1, 0),
+//    BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_KILL_PROCESS),
     BPF_STMT(BPF_LD | BPF_W | BPF_ABS, OFF(nr)),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_truncate, 1, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_setxattr, 0, 1),
@@ -434,8 +434,8 @@ static struct sock_filter kUnveilBlacklistAbiVersionBelow3[] = {
 
 static struct sock_filter kUnveilBlacklistLatestAbi[] = {
     BPF_STMT(BPF_LD | BPF_W | BPF_ABS, OFF(arch)),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, AUDIT_ARCH_X86_64, 1, 0),
-    BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_KILL_PROCESS),
+//    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, AUDIT_ARCH_X86_64, 1, 0),
+//    BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_KILL_PROCESS),
     BPF_STMT(BPF_LD | BPF_W | BPF_ABS, OFF(nr)),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_setxattr, 0, 1),
     BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_ERRNO | (1 & SECCOMP_RET_DATA)),
@@ -2191,8 +2191,8 @@ static privileged void AppendFilter(struct Filter *f, struct sock_filter *p,
 static struct sock_filter kPledgeStart[] = {
     // make sure this isn't an i386 binary or something
     BPF_STMT(BPF_LD | BPF_W | BPF_ABS, OFF(arch)),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, AUDIT_ARCH_X86_64, 1, 0),
-    BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_KILL_PROCESS),
+//    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, AUDIT_ARCH_X86_64, 1, 0),
+//    BPF_STMT(BPF_RET | BPF_K, SECCOMP_RET_KILL_PROCESS),
     // each filter assumes ordinal is already loaded into accumulator
     BPF_STMT(BPF_LD | BPF_W | BPF_ABS, OFF(nr)),
     // forbid some system calls with ENOSYS (rather than EPERM)
