@@ -1362,24 +1362,34 @@ static const uint16_t kPledgeRpath[] = {
     __NR_readlinkat,         //
     __NR_statfs,             //
     __NR_fstatfs,            //
+#ifdef __NR_getdents
     __NR_getdents,           //
+#endif
     __NR_getdents64,         //
 };
 
 static const uint16_t kPledgeWpath[] = {
     __NR_getcwd,              //
+#ifdef __NR_open
     __NR_open | WRITEONLY,    //
+#endif
     __NR_openat | WRITEONLY,  //
+#ifdef __NR_stat
     __NR_stat,                //
+#endif
     __NR_fstat,               //
+#ifdef __NR_lstat
     __NR_lstat,               //
+#endif
 #ifdef __NR_fstatat64
     __NR_fstatat64,           //
 #endif
 #ifdef __NR_newfstatat
     __NR_newfstatat,          //
 #endif
+#ifdef __NR_access
     __NR_access,              //
+#endif
     __NR_truncate,            //
     __NR_faccessat,           //
     __NR_faccessat2,          //
@@ -1431,7 +1441,9 @@ static const uint16_t kPledgeDpath[] = {
 };
 
 static const uint16_t kPledgeFattr[] = {
+#ifdef __NR_chmod
     __NR_chmod | NOBITS,     //
+#endif
     __NR_fchmod | NOBITS,    //
     __NR_fchmodat | NOBITS,  //
 #ifdef __NR_utime
@@ -1595,7 +1607,9 @@ static const uint16_t kPledgeVminfo[] = {
 // little security here. consider using them together.
 static const uint16_t kPledgeTmppath[] = {
     __NR_lstat,     //
+#ifdef __NR_unlink
     __NR_unlink,    //
+#endif
     __NR_unlinkat,  //
 };
 
@@ -2721,6 +2735,7 @@ static privileged void AllowOpenatCreatonly(struct Filter *f) {
   AppendFilter(f, PLEDGE(fragment));
 }
 
+#ifdef __NR_creat
 // Then the mode parameter must not have:
 //
 //   - S_ISVTX (01000 sticky)
@@ -2739,6 +2754,7 @@ static privileged void AllowCreatRestrict(struct Filter *f) {
   };
   AppendFilter(f, PLEDGE(fragment));
 }
+#endif
 
 // The second argument of fcntl() must be one of:
 //
@@ -3079,9 +3095,11 @@ static privileged void AppendPledge(struct Filter *f,   //
       case __NR_getsockopt | RESTRICT:
         AllowGetsockoptRestrict(f);
         break;
+#ifdef __NR_creat
       case __NR_creat | RESTRICT:
         AllowCreatRestrict(f);
         break;
+#endif
       case __NR_fcntl | STDIO:
         AllowFcntlStdio(f);
         break;
