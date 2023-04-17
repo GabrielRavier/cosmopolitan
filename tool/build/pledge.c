@@ -1402,7 +1402,9 @@ static const uint16_t kPledgeWpath[] = {
 };
 
 static const uint16_t kPledgeCpath[] = {
+#ifdef __NR_open
     __NR_open | CREATONLY,    //
+#endif
     __NR_openat | CREATONLY,  //
 #ifdef __NR_creat
     __NR_creat | RESTRICT,    //
@@ -2571,6 +2573,7 @@ static privileged void AllowMprotectNoexec(struct Filter *f) {
   AppendFilter(f, PLEDGE(fragment));
 }
 
+#ifdef __NR_open
 // The open() system call is permitted only when
 //
 //   - (flags & O_ACCMODE) == O_RDONLY
@@ -2596,6 +2599,7 @@ static privileged void AllowOpenReadonly(struct Filter *f) {
   };
   AppendFilter(f, PLEDGE(fragment));
 }
+#endif
 
 // The open() system call is permitted only when
 //
@@ -2623,6 +2627,7 @@ static privileged void AllowOpenatReadonly(struct Filter *f) {
   AppendFilter(f, PLEDGE(fragment));
 }
 
+#ifdef __NR_open
 // The open() system call is permitted only when
 //
 //   - (flags & O_ACCMODE) == O_WRONLY
@@ -2649,6 +2654,7 @@ static privileged void AllowOpenWriteonly(struct Filter *f) {
   };
   AppendFilter(f, PLEDGE(fragment));
 }
+#endif
 
 // The open() system call is permitted only when
 //
@@ -2677,6 +2683,7 @@ static privileged void AllowOpenatWriteonly(struct Filter *f) {
   AppendFilter(f, PLEDGE(fragment));
 }
 
+#ifdef __NR_open
 // If the flags parameter of open() has one of:
 //
 //   - O_CREAT     (000000100)
@@ -2706,6 +2713,7 @@ static privileged void AllowOpenCreatonly(struct Filter *f) {
   };
   AppendFilter(f, PLEDGE(fragment));
 }
+#endif
 
 // If the flags parameter of openat() has one of:
 //
@@ -3085,15 +3093,19 @@ static privileged void AppendPledge(struct Filter *f,   //
       case __NR_openat | CREATONLY:
         AllowOpenatCreatonly(f);
         break;
+#ifdef __NR_open
       case __NR_open | READONLY:
         AllowOpenReadonly(f);
         break;
+#endif
       case __NR_openat | READONLY:
         AllowOpenatReadonly(f);
         break;
+#ifdef __NR_open
       case __NR_open | WRITEONLY:
         AllowOpenWriteonly(f);
         break;
+#endif
       case __NR_openat | WRITEONLY:
         AllowOpenatWriteonly(f);
         break;
