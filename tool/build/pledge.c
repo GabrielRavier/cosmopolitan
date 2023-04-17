@@ -401,6 +401,10 @@ void CheckLargeStackAllocation(void *p, ssize_t n) {
 
 #define OFF(f) offsetof(struct seccomp_data, f)
 
+#ifndef LANDLOCK_ACCESS_FS_TRUNCATE
+#define LANDLOCK_ACCESS_FS_TRUNCATE (1ULL << 14)
+#endif
+
 #define UNVEIL_READ                                             \
   (LANDLOCK_ACCESS_FS_READ_FILE | LANDLOCK_ACCESS_FS_READ_DIR | \
    LANDLOCK_ACCESS_FS_REFER)
@@ -1187,7 +1191,9 @@ static const uint16_t kPledgeStdio[] = {
     __NR_preadv,             //
     __NR_preadv2,            //
     __NR_dup,                //
+#ifdef __NR_dup2
     __NR_dup2,               //
+#endif
     __NR_dup3,               //
     __NR_fchdir,             //
     __NR_fcntl | STDIO,      //
@@ -1199,7 +1205,9 @@ static const uint16_t kPledgeStdio[] = {
     __NR_getrandom,          //
     __NR_getgroups,          //
     __NR_getpgid,            //
+#ifdef __NR_getpgrp
     __NR_getpgrp,            //
+#endif
     __NR_getpid,             //
     __NR_gettid,             //
     __NR_getuid,             //
@@ -1232,33 +1240,56 @@ static const uint16_t kPledgeStdio[] = {
     __NR_madvise,            //
     __NR_fadvise64,          //
     __NR_mprotect | NOEXEC,  //
+#ifdef __NR_arch_prctl
     __NR_arch_prctl,         //
+#endif
     __NR_migrate_pages,      //
     __NR_sync_file_range,    //
     __NR_set_tid_address,    //
     __NR_membarrier,         //
     __NR_nanosleep,          //
+#ifdef __NR_pipe
     __NR_pipe,               //
+#endif
     __NR_pipe2,              //
+#ifdef __NR_poll
     __NR_poll,               //
+#endif
     __NR_ppoll,              //
+#ifdef __NR_select
     __NR_select,             //
+#endif
+#ifdef __NR_newselect
+    __NR_newselect,          //
+#endif
     __NR_pselect6,           //
+#ifdef __NR_epoll_create
     __NR_epoll_create,       //
+#endif
     __NR_epoll_create1,      //
     __NR_epoll_ctl,          //
+#ifdef __NR_epoll_wait
     __NR_epoll_wait,         //
+#endif
     __NR_epoll_pwait,        //
     __NR_epoll_pwait2,       //
     __NR_recvfrom,           //
     __NR_sendto | ADDRLESS,  //
     __NR_ioctl,   //
+#ifdef __NR_alarm
     __NR_alarm,              //
+#endif
+#ifdef __NR_pause
     __NR_pause,              //
+#endif
     __NR_shutdown,           //
+#ifdef __NR_eventfd
     __NR_eventfd,            //
+#endif
     __NR_eventfd2,           //
+#ifdef __NR_signalfd
     __NR_signalfd,           //
+#endif
     __NR_signalfd4,          //
 #ifdef __NR_rt_sigaction
     __NR_rt_sigaction,          //
@@ -1303,10 +1334,16 @@ static const uint16_t kPledgeFlock[] = {
 static const uint16_t kPledgeRpath[] = {
     __NR_chdir,              //
     __NR_getcwd,             //
+#ifdef __NR_open
     __NR_open | READONLY,    //
+#endif
     __NR_openat | READONLY,  //
+#ifdef __NR_stat
     __NR_stat,               //
+#endif
+#ifdef __NR_lstat
     __NR_lstat,              //
+#endif
     __NR_fstat,              //
 #ifdef __NR_fstatat64
     __NR_fstatat64,          //
@@ -1314,10 +1351,14 @@ static const uint16_t kPledgeRpath[] = {
 #ifdef __NR_newfstatat
     __NR_newfstatat,          //
 #endif
+#ifdef __NR_access
     __NR_access,             //
+#endif
     __NR_faccessat,          //
     __NR_faccessat2,         //
+#ifdef __NR_readlink
     __NR_readlink,           //
+#endif
     __NR_readlinkat,         //
     __NR_statfs,             //
     __NR_fstatfs,            //
@@ -1343,7 +1384,9 @@ static const uint16_t kPledgeWpath[] = {
     __NR_faccessat,           //
     __NR_faccessat2,          //
     __NR_readlinkat,          //
+#ifdef __NR_chmod
     __NR_chmod | NOBITS,      //
+#endif
     __NR_fchmod | NOBITS,     //
     __NR_fchmodat | NOBITS,   //
 };
@@ -1351,23 +1394,39 @@ static const uint16_t kPledgeWpath[] = {
 static const uint16_t kPledgeCpath[] = {
     __NR_open | CREATONLY,    //
     __NR_openat | CREATONLY,  //
+#ifdef __NR_creat
     __NR_creat | RESTRICT,    //
+#endif
+#ifdef __NR_rename
     __NR_rename,              //
+#endif
     __NR_renameat,            //
     __NR_renameat2,           //
+#ifdef __NR_link
     __NR_link,                //
+#endif
     __NR_linkat,              //
+#ifdef __NR_symlink
     __NR_symlink,             //
+#endif
     __NR_symlinkat,           //
+#ifdef __NR_rmdir
     __NR_rmdir,               //
+#endif
+#ifdef __NR_unlink
     __NR_unlink,              //
+#endif
     __NR_unlinkat,            //
+#ifdef __NR_mkdir
     __NR_mkdir,               //
+#endif
     __NR_mkdirat,             //
 };
 
 static const uint16_t kPledgeDpath[] = {
+#ifdef __NR_mknod
     __NR_mknod,    //
+#endif
     __NR_mknodat,  //
 };
 
@@ -1375,9 +1434,15 @@ static const uint16_t kPledgeFattr[] = {
     __NR_chmod | NOBITS,     //
     __NR_fchmod | NOBITS,    //
     __NR_fchmodat | NOBITS,  //
+#ifdef __NR_utime
     __NR_utime,              //
+#endif
+#ifdef __NR_utimes
     __NR_utimes,             //
+#endif
+#ifdef __NR_futimesat
     __NR_futimesat,          //
+#endif
     __NR_utimensat,          //
 };
 
@@ -1443,8 +1508,12 @@ static const uint16_t kPledgeSendfd[] = {
 };
 
 static const uint16_t kPledgeProc[] = {
+#ifdef __NR_fork
     __NR_fork,                    //
+#endif
+#ifdef __NR_vfork
     __NR_vfork,                   //
+#endif
     __NR_clone | RESTRICT,        //
     __NR_kill,                    //
     __NR_tgkill,                  //
@@ -1481,9 +1550,13 @@ static const uint16_t kPledgeId[] = {
 };
 
 static const uint16_t kPledgeChown[] = {
+#ifdef __NR_chown
     __NR_chown,     //
+#endif
     __NR_fchown,    //
+#ifdef __NR_lchown
     __NR_lchown,    //
+#endif
     __NR_fchownat,  //
 };
 
