@@ -1606,7 +1606,9 @@ static const uint16_t kPledgeVminfo[] = {
 // permissions. pledge() alone (without unveil() too) offers very
 // little security here. consider using them together.
 static const uint16_t kPledgeTmppath[] = {
+#ifdef __NR_lstat
     __NR_lstat,     //
+#endif
 #ifdef __NR_unlink
     __NR_unlink,    //
 #endif
@@ -2931,6 +2933,7 @@ static privileged void AllowPrctlStdio(struct Filter *f) {
   AppendFilter(f, PLEDGE(fragment));
 }
 
+#ifdef __NR_chmod
 // The mode parameter of chmod() can't have the following:
 //
 //   - S_ISVTX (01000 sticky)
@@ -2949,6 +2952,7 @@ static privileged void AllowChmodNobits(struct Filter *f) {
   };
   AppendFilter(f, PLEDGE(fragment));
 }
+#endif
 
 // The mode parameter of fchmod() can't have the following:
 //
@@ -3059,9 +3063,11 @@ static privileged void AppendPledge(struct Filter *f,   //
       case __NR_mprotect | NOEXEC:
         AllowMprotectNoexec(f);
         break;
+#ifdef __NR_chmod
       case __NR_chmod | NOBITS:
         AllowChmodNobits(f);
         break;
+#endif
       case __NR_fchmod | NOBITS:
         AllowFchmodNobits(f);
         break;
@@ -3071,9 +3077,11 @@ static privileged void AppendPledge(struct Filter *f,   //
       case __NR_prctl | STDIO:
         AllowPrctlStdio(f);
         break;
+#ifdef __NR_open
       case __NR_open | CREATONLY:
         AllowOpenCreatonly(f);
         break;
+#endif
       case __NR_openat | CREATONLY:
         AllowOpenatCreatonly(f);
         break;
